@@ -1,58 +1,81 @@
-import { useState } from "react";
+import useInput from '../hooks/use-input';
 
 const SimpleInput = (props) => {
-  const [entredName, setEntredName] = useState("");
-  const [entredNameTouched, setEntredNameTouched] = useState(false);
-  const entredNameIsValid = entredName.trim() !== "";
-  const nameInputIsInvalid = !entredNameIsValid && entredNameTouched;
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    valueChangeHandler: nameChangedHandler,
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim() !== '');
+
+  const {
+    value: enteredEmail,
+    isValid: enteredEmailIsValid,
+    hasError: emailInputHasError,
+    valueChangeHandler: emailChangeHandler,
+    inputBlurHandler: emailBlurHandler,
+    reset: resetEmailInput,
+  } = useInput((value) => value.includes('@'));
 
   let formIsValid = false;
-  if (entredNameIsValid) {
+
+  if (enteredNameIsValid && enteredEmailIsValid) {
     formIsValid = true;
   }
 
-  const entredNmaeHundler = (e) => {
-    setEntredName(e.target.value);
-  };
+  const formSubmissionHandler = (event) => {
+    event.preventDefault();
 
-  const entredNameBlurHundler = (e) => {
-    setEntredNameTouched(true);
-  };
-
-  const formSubmittion = (e) => {
-    e.preventDefault();
-
-    setEntredNameTouched(true);
-
-    if (!entredNameIsValid) {
+    if (!enteredNameIsValid) {
       return;
     }
 
-    setEntredName(""); //reset input with state
+    console.log(enteredName);
 
-    setEntredNameTouched(false);
+    // nameInputRef.current.value = ''; => NOT IDEAL, DON'T MANIPULATE THE DOM
+    resetNameInput();
+    resetEmailInput();
   };
 
-  const nameInputClasses = nameInputIsInvalid
-    ? "form-control invalid"
-    : "form-control";
+  const nameInputClasses = nameInputHasError
+    ? 'form-control invalid'
+    : 'form-control';
+
+  const emailInputClasses = emailInputHasError
+    ? 'form-control invalid'
+    : 'form-control';
 
   return (
-    <form onSubmit={formSubmittion}>
+    <form onSubmit={formSubmissionHandler}>
       <div className={nameInputClasses}>
-        <label htmlFor="name">Your Name</label>
+        <label htmlFor='name'>Your Name</label>
         <input
-          onChange={entredNmaeHundler}
-          type="text"
-          onBlur={entredNameBlurHundler}
-          id="name"
-          value={entredName}
+          type='text'
+          id='name'
+          onChange={nameChangedHandler}
+          onBlur={nameBlurHandler}
+          value={enteredName}
         />
-        {nameInputIsInvalid && (
-          <p className="error-text">Name must not be empty</p>
+        {nameInputHasError && (
+          <p className='error-text'>Name must not be empty.</p>
         )}
       </div>
-      <div className="form-actions">
+      <div className={emailInputClasses}>
+        <label htmlFor='email'>Your E-Mail</label>
+        <input
+          type='email'
+          id='email'
+          onChange={emailChangeHandler}
+          onBlur={emailBlurHandler}
+          value={enteredEmail}
+        />
+        {emailInputHasError && (
+          <p className='error-text'>Please enter a valid email.</p>
+        )}
+      </div>
+      <div className='form-actions'>
         <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
