@@ -1,6 +1,9 @@
 import React from "react";
 import useInput from "../hooks/use-input";
 
+const isNotEmpty = (value) => value.trim() !== "";
+const isEmail = (value) => value.includes("@");
+
 const BasicForm = (props) => {
   const {
     value: enteredFirstName,
@@ -9,7 +12,7 @@ const BasicForm = (props) => {
     valueChangeHandler: firstNameChangeHandler,
     inputBlurHandler: firstNameBlurHandler,
     reset: resetFirstName,
-  } = useInput((value) => value.trim() !== "");
+  } = useInput(isNotEmpty);
 
   const {
     value: enteredLastName,
@@ -18,7 +21,7 @@ const BasicForm = (props) => {
     valueChangeHandler: lastNameChangeHandler,
     inputBlurHandler: lastNameBlurHandler,
     reset: resetLastName,
-  } = useInput((value) => value.trim() !== "");
+  } = useInput(isNotEmpty);
 
   const {
     value: enteredEmail,
@@ -27,7 +30,7 @@ const BasicForm = (props) => {
     valueChangeHandler: emailChangeHandler,
     inputBlurHandler: emailBlurHandler,
     reset: resetEmail,
-  } = useInput((value) => value.includes("@"));
+  } = useInput(isEmail);
 
   let formIsValid = false;
 
@@ -50,15 +53,27 @@ const BasicForm = (props) => {
       return;
     }
 
+    console.log(enteredEmail, enteredFirstName, enteredLastName);
+
     resetFirstName();
     resetLastName();
     resetEmail();
   };
 
+  const firstNameClasses = firstNameInputHasError
+    ? "form-control invalid"
+    : "form-control";
+  const lastNameClasses = lastNameInputHasError
+    ? "form-control invalid"
+    : "form-control";
+  const emailClasses = emailInputHasError
+    ? "form-control invalid"
+    : "form-control";
+
   return (
     <form onSubmit={formSubmissionHandler}>
       <div className="control-group">
-        <div className="form-control">
+        <div className={firstNameClasses}>
           <label htmlFor="name">First Name</label>
           <input
             onChange={firstNameChangeHandler}
@@ -71,7 +86,7 @@ const BasicForm = (props) => {
             <p className="error-text">Please enter a valid first name.</p>
           )}
         </div>
-        <div className="form-control">
+        <div className={lastNameClasses}>
           <label htmlFor="name">Last Name</label>
           <input
             onChange={lastNameChangeHandler}
@@ -85,7 +100,7 @@ const BasicForm = (props) => {
           )}
         </div>
       </div>
-      <div className="form-control">
+      <div className={emailClasses}>
         <label htmlFor="name">E-Mail Address</label>
         <input
           onChange={emailChangeHandler}
